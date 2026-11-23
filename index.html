@@ -39,7 +39,9 @@ button.on{background:#2a4a8a;border-color:#7fb0ff}
 #card .x{position:absolute;right:8px;top:6px}
 .legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;margin-top:4px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:3px;vertical-align:-1px}
-@media(max-width:760px){#panel{display:none;width:calc(100% - 20px);max-height:60%}#tgl{display:block}#charts,#side{display:none}#clock{font-size:22px}#title{max-width:70vw}}
+@media(max-width:1700px) and (min-width:761px){#charts{left:10px;flex-direction:column;align-items:flex-start;gap:4px}#charts canvas.ch{height:96px;width:420px}}
+#mbar{display:none;position:fixed;left:10px;bottom:62px;gap:6px;z-index:4}
+@media(max-width:760px){.chip{font-size:11px;padding:1px 7px}#chips{gap:4px}#clock{margin-top:0}#panel{display:none;width:calc(100% - 20px);max-height:62%!important;top:50px}#tgl{display:block}#charts,#side{display:none}#clock{font-size:22px}#title{max-width:72vw}#title h1{font-size:14px}#title .sub{display:none}#mbar{display:flex}#credit{font-size:9px;line-height:1.3}.pin{font-size:10px}.pin b{padding:0 4px}}
 body.video #panel,body.video #tgl{display:none!important}
 </style></head><body>
 <canvas id="c"></canvas>
@@ -53,6 +55,7 @@ body.video #panel,body.video #tgl{display:none!important}
 <div class="cbox"><div class="legend"><span><i style="background:var(--pub)"></i>公表値(実測)</span><span><i style="background:var(--read)"></i>グラフ読み取り</span><span><i style="background:var(--est)"></i>補間・推定</span><span><i style="background:var(--none)"></i>データなし</span></div></div></div>
 <div class="hud" id="caption"></div>
 <div class="hud" id="credit">出典: 東京都建設局(台風6号における調節池の効果 速報値 / 第1回水防本部報告 / 神田川・環状七号線地下調節池リーフレット)・国土交通省関東地方整備局江戸川河川事務所(出水速報第1報 R8.6、首都圏外郭放水路 施設概要) ・ 地図: 国土地理院 淡色地図 ・ 立坑・道路座標: © OpenStreetMap contributors(ODbL) ・ 経路は推定、速報値は今後修正の可能性あり。AとBは実際は約32km離れており、並べて配置しています。</div>
+<div id="mbar"><button data-m="both">両方</button><button data-m="A">A 環七</button><button data-m="B">B 外郭</button></div>
 <button id="tgl" onclick="document.getElementById('panel').style.display=document.getElementById('panel').style.display==='block'?'none':'block'">操作</button>
 <div id="panel">
  <div class="row"><button id="play">▶ 再生</button><select id="spd"><option value="10">10分/秒</option><option value="30">30分/秒</option><option value="60" selected>60分/秒</option><option value="180">180分/秒</option></select></div>
@@ -80,7 +83,12 @@ const $=id=>document.getElementById(id);
 const OFF={A:[-6000,0],B:[3500,0]};
 const T_MAX=2760;
 const FAC={both:{tx:-17,tz:0,dist:12600},A:{tx:-6000,tz:0,dist:7600},B:{tx:3500,tz:0,dist:7300}};
-const fit=()=>Math.max(1,(16/9)/(innerWidth/innerHeight));
+function viewOf(n){if(!portrait()){const f=FAC[n];return{tx:f.tx,tz:f.tz,dist:f.dist,yaw:0}}
+ const a=asp(),k=Math.tan(20*Math.PI/180);
+ if(n==='A'){const d=Math.max(2800/k,1780/(k*a))*1.14;return{tx:-6000,tz:-d*0.05,dist:d,yaw:0}}
+ if(n==='B'){const d=Math.max(3450/k,1500/(k*a))*1.12;return{tx:3500-d*0.05,tz:0,dist:d,yaw:90}}
+ const d=Math.max(7850/k,2750/(k*a))*1.45;return{tx:-17-d*0.03,tz:0,dist:d,yaw:90}}
+const asp=()=>innerWidth/innerHeight,portrait=()=>asp()<0.9;
 const S={t:420,play:false,spd:60,exag:1,fac:'both',sf:'auto',pitch:89,yaw:0,dist:12600,tx:-17,tz:0,video:false,draw:1,ph:0,flt:{}};
 const wx=(f,p)=>p[0]+OFF[f][0], wz=(f,p)=>p[1]+OFF[f][1];
 const hhmm=m=>{const d=Math.floor(m/1440),mm=((m%1440)+1440)%1440;return `6/${3+d} ${String(Math.floor(mm/60)).padStart(2,'0')}:${String(Math.floor(mm%60)).padStart(2,'0')}`};
@@ -201,8 +209,8 @@ function drawB(t){const w=420,h=120,c=cB;c.clearRect(0,0,w,h);const t0=0,t1=2760
 function chip(cls,txt){return `<span class="chip ${cls}">${txt}</span>`}
 function hud(t){$('clock').textContent=hhmm(t);$('tv').textContent=hhmm(t);$('ts').value=t;
  const rA=rainAt(D.rainA,t),rB=rainAt(D.rainB,t),ba=bActive(t);const vol=aVol(t),fr=vol/D.A.cap;
- let ch='';ch+=chip('k-read',`雨 A武蔵野 ${rA}mm/h(読取・毎時)`);ch+=chip('k-read',`雨 B岩槻 ${rB}mm/h(読取・毎時)`);
- const ws=D.warn.filter(w=>w.t<=t&&t<w.t+720).slice(-2);for(const w of ws)ch+=chip('k-pub',`${hhmm(w.t).slice(4)} ${w.s}`);
+ const mob=innerWidth<760;let ch='';if(mob)ch+=chip('k-read',`雨 A${rA} / B${rB} mm/h(読取)`);else{ch+=chip('k-read',`雨 A武蔵野 ${rA}mm/h(読取・毎時)`);ch+=chip('k-read',`雨 B岩槻 ${rB}mm/h(読取・毎時)`)}
+ const ws=D.warn.filter(w=>w.t<=t&&t<w.t+720).slice(mob?-1:-2);for(const w of ws)ch+=chip('k-pub',`${hhmm(w.t).slice(4)} ${w.s}`);
  $('chips').innerHTML=ch;
  const lv=segArea(Math.max(.0001,fr));
  $('boxA').innerHTML=`<canvas id="gauge" width="60" height="60" style="float:right"></canvas><b>A 環七調節池</b><br>取水量 <span style="color:var(--est)">${Math.round(vol).toLocaleString()} m³(8:16→11:17を線形補間)</span><br>貯留率 <span style="color:var(--est)">${(fr*100).toFixed(1)}%</span> <small style="color:var(--dim)">(公表: 最終 237,100m³・44%)</small><br><small style="color:var(--dim)">11:17以降の排水は公表値なし(最終貯留量を保持)。光の充填の向きは模式表示(要確認)</small>`;
@@ -234,16 +242,20 @@ function frame(){
  // rain
  updRain('A',rainAt(D.rainA,t),S.ph);updRain('B',rainAt(D.rainB,t),S.ph);rain.A.l.visible=rain.A.l.visible&&visA;rain.B.l.visible=rain.B.l.visible&&visB;
  R.render(SC,CAM);
- // pins
- const W=innerWidth,H=innerHeight,v=new THREE.Vector3();
+ // pins (重なる📍は優先度順に間引く。ズームすると展開)
+ const W=innerWidth,H=innerHeight,v=new THREE.Vector3();const PR={tank:0,intake:1,shaft:1,pump:2,visit:2,landmark:3};const cand=[];
  for(const o of pinEls){const ok=S.flt[o.p.t]&&(o.p.f==='A'?visA:visB);if(!ok){o.e.style.display='none';continue}
   v.copy(o.w).project(CAM);if(v.z>1||Math.abs(v.x)>1.1||Math.abs(v.y)>1.1){o.e.style.display='none';continue}
-  o.e.style.display='block';o.e.style.left=((v.x+1)/2*W)+'px';o.e.style.top=((1-v.y)/2*H)+'px';
-  const far=S.dist>5500&&o.p.t==='landmark';o.e.style.opacity=far?0:1;
-  if(S.dist>9000&&o.p.t!=='tank'){o.e.firstChild.style.fontSize=S.video?'10px':'10px'}}
+  cand.push({o,x:(v.x+1)/2*W,y:(1-v.y)/2*H})}
+ cand.sort((a,b)=>PR[a.o.p.t]-PR[b.o.p.t]);const placed=[];const fs=W<760?10:11;
+ for(const c of cand){const nm=c.o.p.n.length*fs+(W<760?18:26),h=fs+9,r=[c.x-nm/2,c.y-h,c.x+nm/2,c.y];
+  const hit=!S.video&&placed.some(q=>r[0]<q[2]&&r[2]>q[0]&&r[1]<q[3]&&r[3]>q[1]);
+  const e=c.o.e;if(hit){e.style.display='none';continue}placed.push(r);
+  e.style.display='block';e.style.left=c.x+'px';e.style.top=c.y+'px';e.style.opacity=(S.dist>5500&&c.o.p.t==='landmark'&&!S.video)?0:(S.dist>5500&&c.o.p.t==='landmark'?0:1)}
  const showRuler=S.dist<2200;for(const r of rulerDom){const ok=showRuler&&(r.i===0?visA:visB)&&UG.rulers;if(!ok){r.e.style.display='none';continue}
   v.set(UG.rulers[r.i][0]+24,-r.d*E,UG.rulers[r.i][1]).project(CAM);if(v.z>1){r.e.style.display='none';continue}r.e.style.display='block';r.e.style.left=((v.x+1)/2*W)+'px';r.e.style.top=((1-v.y)/2*H)+'px'}
- hud(t);$('exv').textContent=E.toFixed(1)}
+ hud(t);$('exv').textContent=E.toFixed(1);
+ if(!S.video&&innerWidth>760){const st=$('side').getBoundingClientRect().top;$('panel').style.maxHeight=Math.max(120,st-20)+'px'}}
 // ---------- interaction ----------
 let last=performance.now(),dragging=null;
 function loop(now){const dt=(now-last)/1000;last=now;if(S.play&&!S.video){S.t+=S.spd*dt;if(S.t>T_MAX){S.t=T_MAX;S.play=false;$('play').textContent='▶ 再生'}}if(!S.video)S.ph=now/1000*0.8;frame();requestAnimationFrame(loop)}
@@ -253,10 +265,11 @@ cv.addEventListener('wheel',e=>{e.preventDefault();S.dist=Math.max(120,Math.min(
 $('play').onclick=()=>{S.play=!S.play;$('play').textContent=S.play?'⏸ 停止':'▶ 再生'};
 $('spd').onchange=e=>S.spd=+e.target.value;$('ts').oninput=e=>{S.t=+e.target.value};
 $('ex').oninput=e=>{S.exag=+e.target.value;build()};$('pi').oninput=e=>S.pitch=+e.target.value;
-document.querySelectorAll('[data-fac]').forEach(b=>b.onclick=()=>{S.fac=b.dataset.fac;document.querySelectorAll('[data-fac]').forEach(x=>x.classList.toggle('on',x===b));const f=FAC[S.fac];Object.assign(S,{tx:f.tx,tz:f.tz,dist:f.dist*fit()})});
+document.querySelectorAll('[data-fac]').forEach(b=>b.onclick=()=>{S.fac=b.dataset.fac;document.querySelectorAll('[data-fac]').forEach(x=>x.classList.toggle('on',x===b));Object.assign(S,viewOf(S.fac));$('pi').value=S.pitch=Math.max(S.pitch,portrait()?89:S.pitch)});
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>document.querySelector('[data-fac='+b.dataset.m+']').click());
 document.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{S.sf=b.dataset.sf;document.querySelectorAll('[data-sf]').forEach(x=>x.classList.toggle('on',x===b))});
 const sp0=D.pins.find(p=>p.n==='善福寺川取水施設'),b1=D.pins.find(p=>p.n==='第1立坑');
-const PRE={all:()=>({fac:'both',...FAC.both,dist:FAC.both.dist*fit(),pitch:89}),A:()=>({fac:'A',...FAC.A,dist:FAC.A.dist*fit(),pitch:89}),B:()=>({fac:'B',...FAC.B,dist:FAC.B.dist*fit(),pitch:89}),Az:()=>({fac:'A',tx:wx('A',sp0.xz),tz:wz('A',sp0.xz),dist:520,pitch:20,yaw:-25}),Bz:()=>({fac:'B',tx:wx('B',b1.xz)+60,tz:wz('B',b1.xz),dist:700,pitch:20,yaw:-25})};
+const PRE={all:()=>({fac:'both',...viewOf('both'),pitch:89}),A:()=>({fac:'A',...viewOf('A'),pitch:89}),B:()=>({fac:'B',...viewOf('B'),pitch:89}),Az:()=>({fac:'A',tx:wx('A',sp0.xz),tz:wz('A',sp0.xz),dist:520,pitch:20,yaw:-25}),Bz:()=>({fac:'B',tx:wx('B',b1.xz)+60,tz:wz('B',b1.xz),dist:700,pitch:20,yaw:-25})};
 document.querySelectorAll('[data-pre]').forEach(b=>b.onclick=()=>{const o=PRE[b.dataset.pre]();Object.assign(S,o);S.yaw=o.yaw||0;document.querySelectorAll('[data-fac]').forEach(x=>x.classList.toggle('on',x.dataset.fac===S.fac));$('pi').value=S.pitch});
 // ---------- video (決定的なフレーム制御) ----------
 const sm=x=>x*x*(3-2*x);
@@ -274,6 +287,6 @@ window.__lab={ready:false,S,set:o=>Object.assign(S,o),build,hud,
   S.draw=f<60?sm(f/60):1;S.ph=f/30*0.8;const c=CAPS.find(c=>f>=c[0]&&f<c[1])||CAPS[CAPS.length-1];const cp=$('caption');cp.style.display='block';cp.textContent=c[2];
   frame()},
  preset:n=>{const o=PRE[n]();Object.assign(S,o);S.yaw=o.yaw||0}};
-S.dist=FAC.both.dist*fit();build();requestAnimationFrame(loop);
+if(portrait()){S.fac='A';document.querySelectorAll('[data-fac]').forEach(x=>x.classList.toggle('on',x.dataset.fac==='A'))}Object.assign(S,viewOf(S.fac));build();requestAnimationFrame(loop);
 setTimeout(()=>{window.__lab.ready=true},1500);
 </script></body></html>

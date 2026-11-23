@@ -53,7 +53,7 @@ summary{padding:8px 10px;cursor:pointer;font-weight:700}
 .nav{display:flex;gap:6px;margin:6px 0}
 #vo{position:absolute;inset:0;pointer-events:none;display:none}
 #vo .o{position:absolute;color:#fff;text-shadow:0 0 18px #000a,0 0 6px #000;font-weight:800;line-height:1.08}
-#vo .o small{display:block;font-weight:600;color:#bfeee0;font-size:.19em;margin-top:.15em;letter-spacing:.04em}
+#vo .o small{display:block;font-weight:800;color:#ffe9b8;font-size:.2em;margin-top:.15em;letter-spacing:.04em}
 #dark{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
 #flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 55%,#a8ecff 0%,#4fc4ff 45%,#1a6cd0 100%);opacity:0;pointer-events:none;mix-blend-mode:screen}
 .corner{position:absolute;right:16px;bottom:12px;font-size:15px;color:#c9d3e8;text-align:right;display:none;text-shadow:0 0 5px #000}
@@ -214,7 +214,7 @@ function build(){const E=S.exag;for(const g of[G_UG,G_CMP,G_DIM,G_BLD]){while(g.
   const p=[],px=SH2.xz[0]+118,pz=SH2.xz[1];const rect=(y0,y1)=>{p.push(px-6,y0,pz,px+6,y0,pz,px+6,y0,pz,px+6,y1,pz,px+6,y1,pz,px-6,y1,pz,px-6,y1,pz,px-6,y0,pz)};rect(0,25);rect(25,50);rect(50,D2);
   T.cmpPool=lines(p,0x7fe8ff,.85);G_CMP.add(T.cmpPool);
   const hm=human(0xffffff);hm.position.set(SH2.xz[0]+56,0,SH2.xz[1]+9);G_CMP.add(hm);T.hSurf=hm;
-  T.hTank=human(0xffffff);{const pb=pilB();T.hTank.position.set(pb[0]-5.6,fl_(E),pb[1]+1.9)};G_CMP.add(T.hTank);
+  T.hTank=human(0xffd27a);{const pb=pilB();T.hTank.position.set(pb[0]-4.8,fl_(E),pb[1]+3.4)};G_CMP.add(T.hTank);
   T.hTun=human(0xffffff);G_CMP.add(T.hTun);T.bus=new THREE.Group();for(let k=0;k<3;k++){const bo=[];boxEdges(12,3.8,2.5,0,0,0,0,bo);bo.push(-6,1.9,-1.25,6,1.9,-1.25,-6,1.9,1.25,6,1.9,1.25);const l=lines(bo,0xffc860,.95);l.position.y=k*3.8-5.7;T.bus.add(l)}G_CMP.add(T.bus)}
  buildDims();
 }
@@ -350,13 +350,13 @@ const labsEl=$('labs');const labEls=[];
 for(const l of D.labels){const e=document.createElement('div');e.className='lab '+l.kind;e.textContent=l.n;labsEl.appendChild(e);labEls.push({l,e,w:new V3(l.xz[0],0.5,l.xz[1])})}
 const PINICON={intake:'🟦',shaft:'🔶',visit:'🟢',tank:'🟪',pump:'🔴',landmark:'📍'};
 const pinEls=[];for(const p of D.pins){const e=document.createElement('div');e.className='pin '+p.t;e.innerHTML=`<b>${PINICON[p.t]} ${p.n}</b>`;e.onclick=ev=>{ev.stopPropagation();pickPart(p.part)};labsEl.appendChild(e);pinEls.push({p,e,w:new V3(p.xz[0],0.5,p.xz[1]),part:p.part})}
-const VPA={t:'ここから',n:'春日部市小渕(第5立坑)'},VPB={t:'ここまで',n:'春日部市上金崎(第1立坑・調圧水槽)'};
+const VPA={t:'ここから',n:'春日部市小渕(第5立坑)'},VPB={t:'ここまで',n:'春日部市上金崎(第1立坑)'};
 const VPS=[{...VPA,p:()=>new V3(D.path[0][0],1,D.path[0][1])},{...VPB,p:()=>new V3(TK.x0+TK.L/2,1,TK.cz)}];
 const vpEls=VPS.map(x=>{const e=document.createElement('div');e.className='vp';e.innerHTML=`<div class="vpt">${x.t}</div><div class="vpn">${x.n}</div><div class="vpd"></div>`;labsEl.appendChild(e);return e});
-function vpinsUpdate(v,W2,H2){const vv=new V3();VPS.forEach((x,i)=>{const e=vpEls[i];if(!(v.vp>0.01)){e.style.display='none';return}vv.copy(x.p()).project(CAM);if(vv.z>1){e.style.display='none';return}e.style.display='block';e.style.left=((vv.x+1)/2*W2)+'px';e.style.top=((1-vv.y)/2*H2)+'px';e.style.opacity=v.vp;e.style.fontSize=(v.fs*1.15)+'px'})}
+function vpinsUpdate(v,W2,H2){const vv=new V3();VPS.forEach((x,i)=>{const e=vpEls[i];if(!(v.vp>0.01)){e.style.display='none';return}vv.copy(x.p()).project(CAM);if(vv.z>1){e.style.display='none';return}e.style.display='block';e.style.fontSize=(v.fs*1.15)+'px';{const hw=(e.offsetWidth||0)/2+10;e.style.left=Math.max(hw,Math.min(W2-hw,(vv.x+1)/2*W2))+'px'}e.style.top=((1-vv.y)/2*H2)+'px';e.style.opacity=v.vp})}
 function decluttered(v,W2,H2,fs){const vv=new V3();const items=[];vpinsUpdate(v,W2,H2);
  for(const o of labEls){if(!v.labs){o.e.style.display='none';continue}vv.copy(o.w).project(CAM);if(vv.z>1||Math.abs(vv.x)>1.05||Math.abs(vv.y)>1.05){o.e.style.display='none';continue}items.push({o,pr:o.l.pr,x:(vv.x+1)/2*W2,y:(1-vv.y)/2*H2,lab:true})}
- for(const o of pinEls){if(!(v.pins&&S.pin)){o.e.style.display='none';continue}vv.copy(o.w).project(CAM);if(vv.z>1||Math.abs(vv.x)>1.05||Math.abs(vv.y)>1.05){o.e.style.display='none';continue}const sel=S.sel&&o.part===S.sel;o.e.classList.toggle('sel',!!sel);items.push({o,pr:sel?-1:(o.p.t==='visit'?3:0),x:(vv.x+1)/2*W2,y:(1-vv.y)/2*H2,lab:false})}
+ for(const o of pinEls){if(!(v.pins&&S.pin)||(S.video&&v.vp>.01&&(o.part==='tank'||o.part==='pump'))){o.e.style.display='none';continue}vv.copy(o.w).project(CAM);if(vv.z>1||Math.abs(vv.x)>1.05||Math.abs(vv.y)>1.05){o.e.style.display='none';continue}const sel=S.sel&&o.part===S.sel;o.e.classList.toggle('sel',!!sel);items.push({o,pr:sel?-1:(o.p.t==='visit'?3:0),x:(vv.x+1)/2*W2,y:(1-vv.y)/2*H2,lab:false})}
  items.sort((a,b)=>a.pr-b.pr);const placed=[];
  for(const it of items){const size=it.lab?(it.o.l.kind==='ward'?fs*1.55:fs):fs*.88;const w=(it.lab?it.o.l.n.length:it.o.p.n.length+3)*size*(it.lab?1.05:1.0)+16,h=size*1.5;const r=it.lab?[it.x-w/2,it.y-h/2,it.x+w/2,it.y+h/2]:[it.x-w/2,it.y-h,it.x+w/2,it.y];
   const ov2=q=>r2=>r2[0]<q[2]&&r2[2]>q[0]&&r2[1]<q[3]&&r2[3]>q[1];let ry=0,ok=false;const tries=it.lab?[0]:[0,h,2*h,-h,-2*h,3*h];for(const dy of tries){const rr=[r[0],r[1]+dy,r[2],r[3]+dy];if(!placed.some(q=>rr[0]<q[2]&&rr[2]>q[0]&&rr[1]<q[3]&&rr[3]>q[1])){ry=dy;ok=true;r[1]+=dy;r[3]+=dy;break}}
@@ -370,7 +370,8 @@ function waterAt(t,tau){const fall=anyFall(t);const pumpOn=inRange(t,[D.pump_t.s
  return{on:fall||tk>0.05||pumpOn,tau:fall?tau:0,front:fall?Math.min(T.s1-T.s2,330*Math.max(0,tau-4.6)):0,hT:fall?0.8+2.5*sm((t-508)/300):0,tank:tk,tflow:(tk>0.05&&any)?tau:0,drain:pumpOn?tau:-1}}
 // ===== ビデオ(決定的) =====
 const FPS=30;
-function vVideo(f){const sh=shots();const v=baseV();const E=1;S.sc='video';
+function vVideo(f0,raw){let f=f0;if(!raw){if(f0<412){f=f0<125?f0*150/125:(f0<203?150+(f0-125)*88/78:(f0<353?238+(f0-203)*62/150:300+(f0-353)*90/59))}else if(f0<458){f=390+(f0-412)*68/46}}
+ const sh=shots();const v=baseV();const E=1;S.sc='video';
  const clock=f<480?500:(f<620?508+(f-480)/140*7:(f<700?515+(f-620)/80*85:(f<790?600+(f-700)/90*390:990+(f-790)/80*(2747-990))));v.t=clock;v.fs=34;v.dimFont=62;v.ph=f/30*.8;
  const top=sh.top,far=sh.far,shaft=sh.shaft,tank=sh.tank,mid=sh.mid;const ov=[];
  v.surf=.06;v.mapBright=.3;v.ugA=1;v.halo=0;v.bld=0;v.labs=false;v.pins=false;
@@ -382,17 +383,17 @@ function vVideo(f){const sh=shots();const v=baseV();const E=1;S.sc='video';
   else if(g<55)cam=logCam(sh0,{pos:sh0.pos.clone().lerp(sh0.tgt,.04),tgt:sh0.tgt,fov:sh0.fov},(g-20)/35);
   else if(g<70)cam=logCam(sh0,mid,sm((g-55)/15));
   else if(g<88)cam=logCam(mid,tankDolly(0),Math.pow((g-70)/18,1.7));
-  else if(g<150)cam=tankDolly(g-88);
-  else if(g<205){const u=(g-150)/55;cam=logCam(tankDolly(62),far,sm(Math.pow(u,1.45)))}
+  else if(g<150)cam=tankDolly((g-88)*25/62);
+  else if(g<205){const u=(g-150)/55;cam=logCam(tankDolly(25),far,sm(Math.pow(u,1.45)))}
   else cam=far;
   v.cam=cam;v.surf=g<150?.05:(g<205?.05+.62*sm((g-150)/36):.67);v.mapBright=g<150?.3:.3+.4*sm((g-150)/36);
   v.bld=g<135?1:1-.4*sm((g-135)/20);v.cmp=g>=15&&g<138;v.cmpShaft=g<68;v.cmpTank=g>=84&&g<150;v.local=g<150;v.halo=g<130?0:1;v.haloP=g<138?0:sm((g-138)/48);v.skel=1;
   v.interior=false;v.labs=g>=165;v.pins=g>=165;v.fs=34;v.vp=g>=158?sm((g-158)/12):0;
   const d={};const dd=(id,a,b)=>{const p=sm((f-a)/12),out=1-sm((f-b)/8);if(f>a)d[id]={p,a:out}};
   dd('shaftd',174,198);dd('tankH',238,252);dd('pil',253,266);dd('tankL',268,290);if(f>=318&&f<390)d.len={p:sm((f-318)/36),a:1-sm((f-384)/6)};
-  dd('human',240,254);{const pb=pilB();v.humanAt=new V3(pb[0]-5.6,fl_(S.exag),pb[1]+1.9)}v.dims=d;v.dimFont=g<55?70:(g<135?60:62)}
+  dd('human',240,254);{const pb=pilB();v.humanAt=new V3(pb[0]-4.8,fl_(S.exag),pb[1]+3.4)}v.dims=d;v.dimFont=g<55?70:(g<135?60:62)}
  else if(f<480){v.cam=far;v.surf=.05;v.mapBright=.25;v.bld=1;v.ugA=.55;v.halo=1;v.rain=1;v.rainSpan=4200;
-  const big=(a,b,t1,t2)=>{if(f>=a&&f<b){const al=Math.min(sm((f-a)/6),1-sm((f-b+8)/8));ov.push({k:'n'+a,x:50,y:44,a:al,html:t1+`<small>${t2}</small>`,size:190,al:'center'})}};
+  const big=(a,b,t1,t2)=>{if(f>=a&&f<b){const al=Math.min(sm((f-a)/4),1-sm((f-b+5)/5));ov.push({k:'sc'+a,scrim:true,a:al*.9});ov.push({k:'n'+a,x:50,y:36,a:al,html:t1+`<small>${t2}</small>`,size:270,al:'center'})}};
   big(390,421,`${N.soka}<span style="font-size:.4em">mm</span>`,'草加 総雨量');big(421,451,`${N.soka_max}<span style="font-size:.4em">mm/h</span>`,'草加 最大1時間雨量');big(451,480,'8:28','第2立坑 流入開始')}
  else {const g=f-480,tau=g/30;let cam;v.halo=1;v.bld=0;v.rain=f<560?.5:0;v.rainSpan=4200;v.cmp=false;v.ugA=.9;v.surf=.04;v.mapBright=.25;
   const fallY=tau<3.5?-6-(SH2.depth-6)*(tau/3.5)*(tau/3.5):-SH2.depth;
@@ -402,7 +403,7 @@ function vVideo(f){const sh=shots();const v=baseV();const E=1;S.sc='video';
   else if(f<700){const sc=T.s2+(f-620)*9;const tc=tunCam(sc);cam={pos:tc.pos,tgt:tc.tgt,fov:tc.fov};v.interior=true;v.sc=sc;if(f<638){const bottom={pos:new V3(SH2.xz[0]-8,-SH2.depth+10,SH2.xz[1]-9),tgt:new V3(SH2.xz[0],-SH2.depth+8,SH2.xz[1]-5),fov:62};cam=lerpCam(bottom,cam,(f-620)/18)}}
   else if(f<790){cam=tankDolly((f-700)*.9);{const up=sm((f-700)/50);cam.pos.y+=10*up;cam.tgt.y+=5*up}v.cmp=true;v.cmpTank=true;v.local=true;v.sc=0}
   else{const u=(f-790)/80;const aer=orb(DR.x0+20,-4,TK.cz,520,28,-125);const t0=tankDolly(81);t0.pos.y+=10;t0.tgt.y+=5;cam=logCam(t0,aer,sm(Math.pow(u,1.3)));v.local=false}
-  v.cam=cam;if(f>=870){}
+  v.cam=cam;if(f>=792&&f<870){const al=Math.min(sm((f-792)/10),1-sm((f-865)/5));ov.push({k:'pmp',x:50,y:8,a:al,html:'ポンプで排水、水が引いていく<span style="display:block;font-size:.5em;font-weight:700;color:#ffe9b8;margin-top:.25em">庄和排水機場の4号ポンプは6/4 21:47まで運転(速報値)<br>水位の動きは演出</span>',size:70,al:'center'})}
   v.flash=f<484?0:Math.min(.5,.5*Math.exp(-(f-484)/9)*sm((f-484)/1.5)+.27*(1-sm((f-565)/75)));
   v.interior=v.interior&&f<700;
   if(f>=870){v.w={...WDEF};v.cam=far;v.interior=false;v.halo=1;v.bld=1;v.surf=.06;const g2=f-870;
@@ -410,10 +411,10 @@ function vVideo(f){const sh=shots();const v=baseV();const E=1;S.sc='video';
    ov.push({k:'fin2',x:50,y:42,a:sm((g2-46)/12),html:`約${N.cm}<span style="font-size:.4em">cm</span><small>中川の水位を低減(外郭+三郷の合算・想定はシミュレーション)</small>`,size:200,al:'center'})}}
  let dark=0;if(f>=458&&f<480)dark=Math.max(sm((f-458)/8),.82);if(f>=480&&f<484)dark=1-(f-480)/4;if(dark<0)dark=0;v.dark=dark;v.ov=ov;return v}
 // ===== 描画ループ(動画) =====
-function renderOv(list){const vo=$('vo');vo.style.display='block';let h='';for(const o of list){if(o.a<=.01)continue;const sty=`left:${o.x}%;top:${o.y}%;opacity:${o.a};font-size:${o.size}px;${o.al==='center'?'text-align:center;width:90%;left:5%':o.al==='right'?'transform:translateX(-100%);text-align:right':''}`;h+=`<div class="o" style="${sty}">${o.html}</div>`}vo.innerHTML=h}
+function renderOv(list){const vo=$('vo');vo.style.display='block';let h='';for(const o of list){if(o.a<=.01)continue;if(o.scrim){h+=`<div style="position:absolute;inset:0;opacity:${o.a};background:radial-gradient(ellipse 62% 40% at 50% 50%,#000e 0%,#000b 55%,transparent 100%)"></div>`;continue}const sty=`left:${o.x}%;top:${o.y}%;opacity:${o.a};font-size:${o.size}px;${o.al==='center'?'text-align:center;width:90%;left:5%':o.al==='right'?'transform:translateX(-100%);text-align:right':''}`;h+=`<div class="o" style="${sty}">${o.html}</div>`}vo.innerHTML=h}
 function applyVideo(f){S.video=true;document.body.classList.add('video');resize();const v=vVideo(f);draw(v);const W2=$('stage').clientWidth,H2=$('stage').clientHeight;decluttered(v,W2,H2,v.fs);renderOv(v.ov);$('dark').style.opacity=v.dark||0;$('flash').style.opacity=v.flash||0;
  $('clk').textContent=hhmm(v.t);$('clock').style.display=(f>=500&&f<870)?'block':'none';$('clk').style.fontSize='34px';$('note').style.display='none';
- $('corner').textContent=(f<150)?'公表値による再現':(f<480?'公表値による再現 / 光の帯は視認用(寸法は1:1) / 柱の配置は模式':(f<870?'水の動きと音は演出 / 公表値は流入・運転の時刻 / 速報値・今後修正の可能性あり':'公表値による再現 / 水の動きと音は演出 / 速報値'));
+ $('corner').textContent=(f<125)?'公表値による再現':(f<480?'公表値による再現 / 光の帯は視認用(寸法は1:1) / 柱の配置は模式':(f<870?'水の動きと音は演出 / 公表値は流入・運転の時刻 / 速報値・今後修正の可能性あり':'公表値による再現 / 水の動きと音は演出 / 速報値'));
  const sb=$('scalebar');const show=(f<150);sb.style.display=show?'block':'none';if(show){const a=new V3(0,0,0).project(CAM),b=new V3(1000,0,0).project(CAM);const pxs=Math.hypot((b.x-a.x)*W2/2,(b.y-a.y)*H2/2);sb.firstChild.style.width=pxs+'px';sb.style.left='20px';sb.style.bottom='46px';sb.lastChild.style.fontSize='24px'}}
 window.__lab={frame:applyVideo,ready:false,S,build,vVideo,CAM,SC,R,T,mapMat,DIMDEF,D,SH2,TK};
 
@@ -428,7 +429,7 @@ function vInteractive(now){const sh=shots();const v=baseV();const t=S.t,sc=S.sc,
  else if(sc==='shaft'||sc==='wshaft'){v.cam=orbitUser(sh.shaft);v.surf=S.sf==='surf'?1:.05;v.mapBright=.3;v.bld=1;v.cmp=true;v.cmpShaft=true;v.local=true;v.dims={shaftd:{p:1,a:1},shafto:{p:1,a:1}};v.dimFont=mobile()?22:34;v.pins=false}
  else if(sc==='tank'||sc==='wtank'){const u=S.sPos;const c={pos:new V3(TK.x0+2+u,fl+1.7,TK.cz-7.8),tgt:new V3(TK.x0+90+u,fl+4.6,TK.cz-7.8),fov:64};
   const dy=S.udyaw*Math.PI/180,dp=S.udpitch*Math.PI/180;const dir=c.tgt.clone().sub(c.pos);const l=dir.length();const yw=Math.atan2(dir.z,dir.x)+dy;const pt=Math.asin(dir.y/l)+dp;c.tgt=c.pos.clone().add(new V3(Math.cos(pt)*Math.cos(yw),Math.sin(pt),Math.cos(pt)*Math.sin(yw)).multiplyScalar(l));
-  v.cam=c;v.surf=.04;v.mapBright=.2;v.cmp=true;v.cmpTank=true;v.local=true;{const pb=pilB();v.humanAt=new V3(pb[0]-5.6,fl,pb[1]+1.9)};v.dims={tankL:{p:1,a:1},tankW:{p:1,a:1},tankH:{p:1,a:1},human:{p:1,a:1}};v.dimFont=mobile()?22:38}
+  v.cam=c;v.surf=.04;v.mapBright=.2;v.cmp=true;v.cmpTank=true;v.local=true;{const pb=pilB();v.humanAt=new V3(pb[0]-4.8,fl,pb[1]+3.4)};v.dims={tankL:{p:1,a:1},tankW:{p:1,a:1},tankH:{p:1,a:1},human:{p:1,a:1}};v.dimFont=mobile()?22:38}
  else{const s=T.s2+60+S.sPos;const c=tunCam(s);v.cam={pos:c.pos,tgt:c.tgt,fov:c.fov};v.surf=.04;v.mapBright=.2;v.interior=true;v.sc=s;v.cmp=true;v.cmpTun=true;const bt=T.basis(s+22);v.humanAt=bt.p.clone().addScaledVector(bt.side,-1.6).setY(T.YC-R_T);v.dims={tid:{p:1,a:1},human:{p:1,a:1}};v.dimFont=mobile()?22:38}
  if(!S.dim)v.dims={};if(!S.cmp){v.cmp=false}if(!S.pin)v.pins=false;
  v.w=(sc==='wshaft'||sc==='wtank')?waterAt(t,tau+4):WDEF;
@@ -436,7 +437,7 @@ function vInteractive(now){const sh=shots();const v=baseV();const t=S.t,sc=S.sc,
  return v}
 let last=performance.now();
 function loopI(now){if(S.video)return;const dt=(now-last)/1000;last=now;if(S.play){S.t+=dt*60*0.8;if(S.t>2760){S.t=2760;S.play=false;$('play').textContent='▶'}}
- let v;if(S.sc==='auto'){const f=150+(((now/1000)*27)%240);v=vVideo(f);v.ov=[];v.dark=0;v.flash=0;{const k=Math.min(1,$('stage').clientWidth/1920*1.5);v.dimFont*=k;v.fs*=k}}else v=vInteractive(now);
+ let v;if(S.sc==='auto'){const f=150+(((now/1000)*27)%240);v=vVideo(f,true);v.ov=[];v.dark=0;v.flash=0;{const k=Math.min(1,$('stage').clientWidth/1920*1.5);v.dimFont*=k;v.fs*=k}}else v=vInteractive(now);
  if(S.sc!=='auto')v.t=S.t;draw(v);const W2=$('stage').clientWidth,H2=$('stage').clientHeight;decluttered(v,W2,H2,v.fs&&v.fs>18?v.fs:(mobile()?15:18));hudI(v);audioTick(v);requestAnimationFrame(loopI)}
 function hudI(v){$('clk').textContent=hhmm(S.t);const t=S.t;$('clk2').textContent=anyFall(t)||inRange(t,inB['第3立坑(倉松川)'])||inRange(t,inB['第5立坑'])||inRange(t,inB['第3立坑(中川)'])?'流入中(速報値)':(t<inB['第2立坑'][0]?'流入前':'流入終了');$('ts').value=S.t;
  $('expmsg').style.display=S.exag>1?'block':'none';$('expmsg').textContent=`深さ表示は誇張中(×${S.exag}・寸法の数値は実寸)`;

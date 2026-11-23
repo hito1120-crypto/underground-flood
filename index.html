@@ -224,7 +224,7 @@ function setDim(id,p,alpha){const d=DIMDEF[id];if(!d)return;d.p=p;const A=d.a,B=
  while(i<arr.length)arr[i++]=0;d.l.geometry.attributes.position.needsUpdate=true;d.m.opacity=alpha;d.l.visible=p>0.001&&alpha>0.01;d.alpha=alpha;d.full=full}
 function buildDims(){for(const k in DIMDEF){delete DIMDEF[k]}$('dimlabs').innerHTML='';const E=S.exag;const dm=id=>F.dims.find(x=>x.id===id);const fmt=d=>`${d.label} ${d.pre}${d.v}${d.unit}`;
  const X2=SH2.xz[0],Z2=SH2.xz[1];
- {const p0=T.P(0),p1=T.P(T.L);const off=new V3(0,0,-150);mkDim('len',p0.clone().add(off).setY(2),p1.clone().add(off).setY(2),new V3(0,0,-30),fmt(dm('len')),'公式全長(図上は推定線)')}
+ {const p0=T.P(0),p1=T.P(T.L);const off=new V3(0,0,-150);mkDim('len',p0.clone().add(off).setY(2),p1.clone().add(off).setY(2),new V3(0,0,-30),fmt(dm('len')),'公式全長<br>(図上は推定線)')}
  {const s=(T.s2+T.s1)/2;const p=T.P(s);mkDim('tdepth',new V3(p.x+22,0,p.z),new V3(p.x+22,YC_REAL*E,p.z),new V3(8,0,0),fmt(dm('tdepth')),'国道16号の地下')}
  mkDim('tid',new V3(0,0,0),new V3(0,1,0),new V3(1,0,0),fmt(dm('tid')),'円形');
  {const x=X2-SH2.R-14;mkDim('shaftd',new V3(x,0,Z2),new V3(x,-SH2.depth*E,Z2),new V3(8,0,0),fmt(dm('shaftd')),'第2立坑')}
@@ -310,7 +310,7 @@ function dimsPre(v){for(const id in DIMDEF){const d=DIMDEF[id];const want=v.dims
   const sel=S.sel;let hi=1;if(sel&&!S.video){const ids=sel.startsWith('sh')?(sel==='sh2'?DIMS_OF('sh2'):[]):DIMS_OF(sel);hi=ids.includes(id)?1:.35}
   d.want=want;d.p2=p;d.a2=al*hi;setDim(id,p,d.a2)}}
 function updDims(v){const W2=$('stage').clientWidth,H2=$('stage').clientHeight;const vv=new V3();const proj=p=>{vv.copy(p).project(CAM);return vv.z>1?null:[(vv.x+1)/2*W2,(1-vv.y)/2*H2]};
- for(const id in DIMDEF){const d=DIMDEF[id];const pr=(d.want&&d.p2>.5)?proj(d.mid):null;if(pr&&d.a2>.2){d.el.style.display='block';d.el.style.left=pr[0]+'px';d.el.style.top=pr[1]+'px';d.el.style.opacity=Math.min(1,(d.p2-.5)*3)*Math.min(1,d.a2*1.2);d.el.style.fontSize=(v.dimFont||26)*(id==='human'?.7:1)+'px'}else d.el.style.display='none'}}
+ for(const id in DIMDEF){const d=DIMDEF[id];const pr=(d.want&&d.p2>.5)?proj(d.mid):null;if(pr&&d.a2>.2){d.el.style.display='block';d.el.style.left=pr[0]+'px';d.el.style.top=(pr[1]-(id==='len'?H2*.12:0))+'px';d.el.style.opacity=Math.min(1,(d.p2-.5)*3)*Math.min(1,d.a2*1.2);d.el.style.fontSize=(v.dimFont||26)*(id==='human'?.7:1)+'px'}else d.el.style.display='none'}}
 function baseV(){return{outline:0,cam:null,t:S.t,w:WDEF,surf:1,mapBright:1,skel:1,ugA:1,halo:0,haloP:1,bld:0,cmp:false,cmpShaft:false,cmpTank:false,interior:false,sc:0,rain:0,ph:0,dims:{},labs:false,pins:false,local:false,dimFont:26,fs:18,vp:0,flash:0,dark:0,ov:[]}}
 function draw(v){const E=S.exag;if(T.E!==E){build()}
  const cam=v.cam;CAM.position.copy(cam.pos);CAM.up.set(0,1,0);CAM.lookAt(cam.tgt);if(CAM.fov!==cam.fov){CAM.fov=cam.fov;CAM.updateProjectionMatrix()}CAM.updateMatrixWorld();
